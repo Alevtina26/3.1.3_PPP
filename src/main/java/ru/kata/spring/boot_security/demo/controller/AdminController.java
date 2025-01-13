@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +23,11 @@ public class AdminController {
     }
 
     @GetMapping
-    public String redirectToAdmin() {
-        return "admin";
-    }
-
-    @GetMapping("/users")
-    public String findAllUsers(Model model) {
-        model.addAttribute("users", userService.findAll());
-        model.addAttribute("allRoles", roleService.findAll());
-        return "users";
+    public String adminPage(Model model, @AuthenticationPrincipal User user) {
+        model.addAttribute("user", user); // Добавляем авторизованного пользователя в модель
+        model.addAttribute("users", userService.findAll()); // Добавляем всех пользователей в модель
+        model.addAttribute("allRoles", roleService.findAll()); // Добавляем роли в модель
+        return "admin"; // Возвращаем имя вашего шаблона
     }
 
     @GetMapping("/users/{id}")
@@ -38,13 +35,13 @@ public class AdminController {
         model.addAttribute("user", userService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
         model.addAttribute("allRoles", roleService.findAll());
-        return "user";
+        return "user"; // Возвращаем имя вашего шаблона user.html
     }
 
     @PostMapping("/users")
     public String addUser(User user) {
         userService.add(user);
-        return "redirect:/admin/users";
+        return "redirect:/admin"; // Перенаправление на страницу администратора после добавления пользователя
     }
 
     @DeleteMapping("/users/{id}")
@@ -52,7 +49,7 @@ public class AdminController {
         if (!userService.removeById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return "redirect:/admin/users";
+        return "redirect:/admin"; // Перенаправление на страницу администратора после удаления пользователя
     }
 
     @PutMapping("/users/{id}")
@@ -60,6 +57,6 @@ public class AdminController {
         if (!userService.update(user)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return "redirect:/admin/users";
+        return "redirect:/admin"; // Перенаправление на страницу администратора после обновления пользователя
     }
 }

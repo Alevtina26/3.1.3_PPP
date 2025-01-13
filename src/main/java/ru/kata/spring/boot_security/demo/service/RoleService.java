@@ -9,5 +9,6 @@ public interface RoleService {
     Role add(Role role);
 
     List<Role> findAll();
+
 }
 
